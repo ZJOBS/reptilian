@@ -115,7 +115,7 @@ public class Constant {
     /**
      * 百度配置文件
      */
-    public static final Properties baiduProperties;
+    public static final Properties baiDuProperties;
 
 
     /**
@@ -127,7 +127,7 @@ public class Constant {
         properties = getProperties();
         send_environment = getSendEnvironment();
         send_withdrawal_Environment = getSendWithdrawalEnvironment();
-        baiduProperties = getBaiDuProperties();
+        baiDuProperties = getBaiDuProperties();
         baiduAccountURLMap = getBaiDuAccountURLMap();
         send_heart_environment = getSendHeartEnvironment();
         sendErrorEnvironment = getSendErrorEnvironment();
@@ -224,7 +224,7 @@ public class Constant {
         logger.info("加载百度账号");
         Map<String, String> map = new HashMap<String, String>();
         //爬虫数量,
-        int baiDuAccountNum = Integer.parseInt(baiduProperties.getProperty("baiDuAccountNum"));
+        int baiDuAccountNum = Integer.parseInt(baiDuProperties.getProperty("baiDuAccountNum"));
         for (int i = 0; i < baiDuAccountNum; i++) {
             String baiDuURL = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + AuthServiceUtil.getAuthParameterByIndex(i);
             map.put(baiduAccountURLMapKey + i, baiDuURL);
@@ -242,7 +242,7 @@ public class Constant {
     private static BlockingQueue<String> getBaiDuAccountQueue() {
         logger.info("百度账号入队");
         BlockingQueue<String> baiDuQueue = new LinkedBlockingDeque<String>();
-        int baiDuAccountNum = Integer.parseInt(baiduProperties.getProperty("baiDuAccountNum"));
+        int baiDuAccountNum = Integer.parseInt(baiDuProperties.getProperty("baiDuAccountNum"));
         List<String> accountList = new ArrayList<String>();
         for (int i = 0; i < baiDuAccountNum; i++) {
             String baiDuURL = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + AuthServiceUtil.getAuthParameterByIndex(i);
