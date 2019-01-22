@@ -70,7 +70,7 @@ public class DataBaseUtils {
             Class.forName("com.mysql.jdbc.Driver");
             con = DriverManager.getConnection(Constant.dbUrl, Constant.dbUser, Constant.dbPassword);
             //问号叫做占位符，这样可以避免SQL注入
-            String sql = "insert into zhang_rate(trade_date,bond_code,content,send,sendrst,reptilian_type) values (?,?,?,?,?,?,?)";
+            String sql = "insert into zhang_rate(trade_date,bond_code,content,send,sendrst,reptilian_type) values (?,?,?,?,?,?)";
             ps = con.prepareStatement(sql);
             ps.setObject(1, date);
             ps.setObject(2, bondCode);
