@@ -4,11 +4,15 @@ import com.aigushou.constant.Constant;
 import com.aigushou.constant.ThreadPoolUtil;
 import com.aigushou.entity.Node;
 import com.aigushou.entity.RateEntity;
+import com.aigushou.thread.common.HeartThread;
+import com.aigushou.utils.DataBaseUtils;
 import com.aigushou.utils.ImageUtil;
 import com.aigushou.utils.ScreenUtil;
+import com.aigushou.utils.SendUtils;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,6 +21,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -112,7 +117,7 @@ public class AreaReptilianThread implements Runnable {
         String bufferedImageMapKey = Constant.bufferedImageMapKey + index;
         Constant.reptilianStateMap.put(bufferedImageMapKey, false);
         int delay = Integer.parseInt(Constant.properties.getProperty("delay"));
-//        Future future = ThreadPoolUtil.heartScheduledExecutorService.scheduleAtFixedRate(new HeartThread(bondCode, index, bufferedImageMapKey), 0, delay, TimeUnit.SECONDS);
+        Future future = ThreadPoolUtil.heartScheduledExecutorService.scheduleAtFixedRate(new HeartThread(bondCode, index, bufferedImageMapKey), 0, delay, TimeUnit.SECONDS);
 
 
         //死循环对比
@@ -127,7 +132,6 @@ public class AreaReptilianThread implements Runnable {
                 String currentDateStr = df.format(currentDate);
                 //当前时间
                 String currentDateTimeStr = dtf.format(currentDate);
-
                 Date startDateTime = dtf.parse(currentDateStr + startTime);
                 Date endDateTime = dtf.parse(currentDateStr + endTime);
                 Date sendDateTime = dtf.parse(currentDateStr + sendTime);
@@ -177,25 +181,38 @@ public class AreaReptilianThread implements Runnable {
 //                        }
 
                         //多线程识别
-                        CountDownLatch countDownLatch = new CountDownLatch(rate_TimeImages.size() - 4);
+                        int size = rate_TimeImages.size();
+                        CountDownLatch countDownLatch = new CountDownLatch(size);
 
                         List<RateEntity> rateEntities = new LinkedList<RateEntity>();
+                        for (int i = 0; i < size; i++) {
+                            rateEntities.add(new RateEntity());
+                        }
 
-
-                        for (int i = 0; i < rate_TimeImages.size() - 4; i++) {
+                        for (int i = 0; i < size; i++) {
                             ThreadPoolUtil.areaThreadPool.execute(new CountDownReptilian(countDownLatch, rate_TimeImages.get(i), node1, node2, rateEntities, i, path, imageFormat));
                         }
                         countDownLatch.await();
-                        System.out.println(rateEntities.toString());
+                        logger.info("AREA 收益率【{}】", rateEntities.toString());
+                        JSONArray array = new JSONArray();
+                        for (int i = 0; i < rateEntities.size(); i++) {
+                            JSONObject object = new JSONObject();
+                            object.put("rate", rateEntities.get(i).getRate());
+                            object.put("time", rateEntities.get(i).getDateTime());
+                            array.add(object);
+                        }
 
+                        //发送
+                        int[] rst = SendUtils.sendRateAndTime(bondCode, array);
+                        //记录数据库
                         logger.info("设置当前的图像");
                         Constant.bufferedImageMap.put(bufferedImageMapKey, currentImg);
 
+                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, array, "1", rst.toString());
                     } else {
                         //笔数相同，休眠100毫秒再爬，
                         TimeUnit.MILLISECONDS.sleep(100);
                     }
-
 
                 } else {
                     //不在时间范围内， 休眠100毫秒再爬

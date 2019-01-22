@@ -111,16 +111,17 @@ public class CountDownReptilian implements Runnable {
             String rateStr = Check.checkFile(rateFile);
             String rateTimeStr = Check.checkFile(rateTimeFile);
 
-            //判断是否为时间格式 和 收益率是否为Double
             try {
+                //校验识别到的收益率是否为double类型
                 Double dCheckValue = Double.parseDouble(rateStr);
+                //校验识别到的时间是否为时间格式 ，具体时间无所谓 "2018-12-12 "
                 LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             } catch (Exception e) {
                 logger.error("时间格式、收益率识别失败。时间为【{}】,收益率为【{}】", rateTimeStr, rateStr);
-                rstList.add(index, null);
+                rstList.set(index, null);
                 return;
             }
-            rstList.add(index, new RateEntity(rateStr, rateTimeStr));
+            rstList.set(index, new RateEntity(rateStr, rateTimeStr));
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {

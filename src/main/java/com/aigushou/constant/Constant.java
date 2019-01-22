@@ -25,16 +25,16 @@ public class Constant {
     /**
      * 数据库URL
      */
-    private static String dbUrl;
+    public static String dbUrl;
 
     /**
      * 数据库用户名
      */
-    private static String dbUser;
+    public static String dbUser;
     /**
      * 数据库密码
      */
-    private static String dbPassword;
+    public static String dbPassword;
 
     /**
      * 初始化6个

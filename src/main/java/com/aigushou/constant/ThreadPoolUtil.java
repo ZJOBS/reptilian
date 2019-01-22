@@ -25,4 +25,10 @@ public class ThreadPoolUtil {
      * 区域识别线程池
      */
     public static final ExecutorService areaThreadPool = Executors.newFixedThreadPool(32);
+
+
+    /**
+     * 发送长琴池
+     */
+    public static final ExecutorService CQThreadPool = Executors.newSingleThreadExecutor();
 }

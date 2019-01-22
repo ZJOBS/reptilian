@@ -4,6 +4,7 @@ import com.aigushou.GuiCamera;
 import com.aigushou.constant.Constant;
 import com.aigushou.thread.immediate.LongReptilianThread;
 import com.aigushou.utils.Check;
+import com.aigushou.utils.DataBaseUtils;
 import com.aigushou.utils.SendUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 统计 笔数和收益率时间差线程的代码
+ * 统计 笔数和收益率时间差线程的代码（无用了）
  *
  * @author jiezhang
  */
@@ -200,7 +201,6 @@ public class TimeDifference implements Runnable {
                             //休眠200毫秒后，抓取收益率
                             //TimeUnit.MILLISECONDS.sleep(400);
 
-
                             robot = new Robot();
                             BufferedImage currentRateImg1 = robot.createScreenCapture(new Rectangle(rateX, rateY, rateWidth, rateHeight));
                             long t1 = System.currentTimeMillis();
@@ -218,7 +218,6 @@ public class TimeDifference implements Runnable {
                                     break;
                                 }
                             }
-
 
                             //将历史数据改为,只用一个账户
                             rate = recognition(path, fileName, rateX, rateY, rateWidth, rateHeight, 0);
@@ -275,7 +274,6 @@ public class TimeDifference implements Runnable {
             } catch (Exception e) {
                 logger.info("有异常", e.getStackTrace());
                 Constant.reptilianStateMap.put(bufferedImageMapKey, false);
-                //System.out.println(e.getStackTrace());
             }
         }
     }
@@ -329,11 +327,9 @@ public class TimeDifference implements Runnable {
                 sendRst[i] = 0;
             }
         }
-
-
         //存库
         logger.info("存库 债券【" + bondCode + "】 , 收益率【" + rate + "】 笔数:【" + currentTransactionPenNumber + "】");
-        insert(currentDateTimeStr, rate, bondCode, currentTransactionPenNumber, sendTag, Arrays.toString(sendRst));
+        DataBaseUtils.insert(currentDateTimeStr, rate, bondCode, currentTransactionPenNumber, sendTag, Arrays.toString(sendRst));
     }
 
 
@@ -355,61 +351,7 @@ public class TimeDifference implements Runnable {
         File imageFile = cam.snapshot(path, fileName, x, y, width, height);
         //识别交易笔数
         logger.info("准备进入checkFile" + imageFile.getName());
-        //System.out.println("准备进入checkFile" + imageFile.getName());
         return Check.checkFile(imageFile, baiDuNumIndex);
-    }
-
-    /**
-     * 插入数据库
-     *
-     * @param date
-     * @param rate
-     * @param bondCode
-     */
-    private void insert(String date, String rate, String bondCode, String transactionPenNumber, String send, String sendRst) {
-        logger.info("开始存入数据库");
-        //System.out.println("开始存入数据库");
-        Connection con = null;
-        PreparedStatement ps = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://47.98.218.102:3306/cqAI?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8", "cq_ai", "cq201805091919");
-            //问号叫做占位符，这样可以避免SQL注入
-            String sql = "insert into zhang_rate_test(trade_date,rate,bond_code,num,send,sendrst,reptilian_type) values (?,?,?,?,?,?,?)";
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, date);
-            ps.setObject(2, rate);
-            ps.setObject(3, bondCode);
-            ps.setObject(4, transactionPenNumber);
-            ps.setObject(5, send);
-            ps.setObject(6, sendRst);
-            ps.setObject(7, Constant.properties.getProperty("reptilian_type"));
-            ps.execute();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            //System.out.println(e.getMessage());
-            logger.error("e.getMessage()");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            //System.out.println(e.getMessage());
-            logger.error("e.getMessage()");
-        } finally {
-            try {
-                if (con != null) {
-                    //后开的先关
-                    ps.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 
@@ -432,7 +374,6 @@ public class TimeDifference implements Runnable {
             return data;
         } catch (Exception exception) {
             logger.error("有文件没有找到,请检查文件是否存在或路径是否正确");
-            //System.out.println("有文件没有找到,请检查文件是否存在或路径是否正确");
             return null;
         }
     }

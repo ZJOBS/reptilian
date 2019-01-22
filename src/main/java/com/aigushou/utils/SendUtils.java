@@ -1,7 +1,9 @@
 package com.aigushou.utils;
 
 import com.aigushou.constant.Constant;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import netscape.javascript.JSObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -34,6 +36,24 @@ public class SendUtils {
         for (int i = 0; i < Constant.send_environment.length; i++) {
             urlStr = Constant.send_environment[i];
             rst[i] = send(bondCode, earnRate, transactionPenNumber, urlStr);
+        }
+        return rst;
+    }
+
+
+    /**
+     * 发送债券+收益率和时间
+     *
+     * @param bondCode    债券
+     * @param rateAndTime 收益率和时间
+     * @return
+     */
+    public static int[] sendRateAndTime(String bondCode, JSONArray rateAndTime) {
+        int[] rst = new int[Constant.send_environment.length];
+        String urlStr;
+        for (int i = 0; i < Constant.send_environment.length; i++) {
+            urlStr = Constant.send_environment[i];
+            rst[i] = send(bondCode, rateAndTime, urlStr);
         }
         return rst;
     }
@@ -93,7 +113,7 @@ public class SendUtils {
     }
 
     /**
-     * 发送收益率
+     * 发送收益率+笔数
      *
      * @param bondCode
      * @param earnRate
@@ -110,6 +130,50 @@ public class SendUtils {
             URI url = new URI(sendUrl);
             HttpGet get = new HttpGet(url);
             //System.out.println("开始发送请求");
+            logger.info("开始发送请求");
+            //设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();
+            post.setConfig(requestConfig);
+            HttpResponse response = httpClient.execute(get);
+            if (response.getStatusLine().getStatusCode() == 200) {
+                String str;
+                /*读取服务器返回过来的json字符串数据*/
+                str = EntityUtils.toString(response.getEntity());
+                JSONObject jsonObject = JSONObject.parseObject(str);
+                logger.info("发送到【{}】,成功！ 返回结果:【{}】", sendUrl, jsonObject.toJSONString());
+                //System.out.println("发送到[" + sendUrl + "]成功！ 返回结果:[" + jsonObject.toJSONString() + "]");
+                if (jsonObject.get("code").equals("0000")) {
+                    rst = 1;
+                } else if (jsonObject.get("code").equals("9999")) {
+                    rst = 0;
+                } else {
+                    rst = 9;
+                }
+            }
+        } catch (Exception e) {
+            logger.info("发送到【{}】,失败！ ", sendUrl);
+            //System.out.println("发送到[" + sendUrl + "]失败！");
+            e.printStackTrace();
+        }
+        return rst;
+    }
+
+    /**
+     * 发送收益率+时间
+     *
+     * @param bondCode
+     * @param rateAndTime
+     * @param sendUrl
+     * @return
+     */
+    private static int send(String bondCode, JSONArray rateAndTime, String sendUrl) {
+        int rst = 0;
+        try {
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpPost post = new HttpPost();
+            sendUrl = sendUrl + "?bondCode=" + bondCode + "&rateAndTime=" + rateAndTime.toJSONString() + "&source=" + Constant.properties.getProperty("source");
+            URI url = new URI(sendUrl);
+            HttpGet get = new HttpGet(url);
             logger.info("开始发送请求");
             //设置请求和传输超时时间
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();
@@ -156,7 +220,6 @@ public class SendUtils {
             //设置编码
             get.setHeader(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8"));
             logger.info("开始发送错误请求 ");
-            //System.out.println("开始发送请求");
             //设置请求和传输超时时间
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();
             post.setConfig(requestConfig);
@@ -168,7 +231,6 @@ public class SendUtils {
                 JSONObject jsonObject = JSONObject.parseObject(str);
 
                 logger.info("发送到【{sendUrl}】 成功！ 返回结果【{sendUrl}】", sendUrl, jsonObject.toJSONString());
-                //System.out.println("发送到[" + sendUrl + "]成功！ 返回结果:[" + jsonObject.toJSONString() + "]");
                 if (jsonObject.get("code").equals("0000")) {
                     rst = 1;
                 } else if (jsonObject.get("code").equals("9999")) {
@@ -179,7 +241,6 @@ public class SendUtils {
             }
         } catch (Exception e) {
             logger.info("发送到【{sendUrl}】 失败！", sendUrl);
-            //System.out.println("发送到[" + sendUrl + "]成功！");
             e.printStackTrace();
         }
         return rst;

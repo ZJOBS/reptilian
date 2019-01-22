@@ -3,6 +3,7 @@ package com.aigushou.thread.time;
 import com.aigushou.constant.Constant;
 import com.aigushou.GuiCamera;
 import com.aigushou.utils.Check;
+import com.aigushou.utils.DataBaseUtils;
 import com.aigushou.utils.SendUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,7 +181,7 @@ public class ReptilianThread implements Runnable {
                         //发送交易笔数
                         int sendRst[] = SendUtils.sendRate(bondCode, rate, transactionPenNumber);
                         //存库
-                        insert(currentDateTimeStr, rate, bondCode, transactionPenNumber, "1", Arrays.toString(sendRst));
+                        DataBaseUtils.insert(currentDateTimeStr, rate, bondCode, transactionPenNumber, "1", Arrays.toString(sendRst));
                     } else {
                         int[] sendRst = new int[Constant.send_environment.length];
                         for (int i = 0; i < Constant.send_environment.length; i++) {
@@ -189,10 +190,11 @@ public class ReptilianThread implements Runnable {
                         //小于的时候，缓存中刷为小的transactionPenNumber
                         Constant.tnList.set(index, transactionPenNumber);
                         //存库
-                        insert(currentDateTimeStr, rate, bondCode, transactionPenNumber, "0", Arrays.toString(sendRst));
+
+                        DataBaseUtils.insert(currentDateTimeStr, rate, bondCode, transactionPenNumber, "0", Arrays.toString(sendRst));
                     }
                     //发送到远端
-                    logger.info("截取到的收益率【{}】",rate);
+                    logger.info("截取到的收益率【{}】", rate);
                 }
             } else {
                 System.out.println("不在时间范围内，不需要扒");
@@ -228,52 +230,4 @@ public class ReptilianThread implements Runnable {
         return Check.checkFile(imageFile, index);
     }
 
-    /**
-     * 插入数据库
-     *
-     * @param date
-     * @param rate
-     * @param bondCode
-     */
-    private void insert(String date, String rate, String bondCode, String transactionPenNumber, String send, String sendRst) {
-        System.out.println("开始存入数据库");
-        Connection con = null;
-        PreparedStatement ps = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://47.98.218.102:3306/cqAI?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8", "cq_ai", "cq201805091919");
-            //问号叫做占位符，这样可以避免SQL注入
-            String sql = "insert into zhang_rate(trade_date,rate,bond_code,num,send,sendrst) values (?,?,?,?,?,?)";
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, date);
-            ps.setObject(2, rate);
-            ps.setObject(3, bondCode);
-            ps.setObject(4, transactionPenNumber);
-            ps.setObject(5, send);
-            ps.setObject(6, sendRst);
-            ps.execute();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (con != null) {
-                    //后开的先关
-                    ps.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
