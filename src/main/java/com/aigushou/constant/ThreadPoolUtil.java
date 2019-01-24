@@ -1,11 +1,11 @@
 package com.aigushou.constant;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 /**
  * 线程池
+ *
+ * @author jiezhang
  */
 public class ThreadPoolUtil {
 
@@ -27,8 +27,4 @@ public class ThreadPoolUtil {
     public static final ExecutorService areaThreadPool = Executors.newFixedThreadPool(32);
 
 
-    /**
-     * 发送长琴池
-     */
-    public static final ExecutorService CQThreadPool = Executors.newSingleThreadExecutor();
 }

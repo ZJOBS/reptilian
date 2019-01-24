@@ -13,10 +13,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -193,17 +195,20 @@ public class AreaReptilianThread implements Runnable {
                             ThreadPoolUtil.areaThreadPool.execute(new CountDownReptilian(countDownLatch, rate_TimeImages.get(i), node1, node2, rateEntities, i, path, imageFormat));
                         }
                         countDownLatch.await();
+
+                        //顺序颠倒，时间从小到大转换
+                        Collections.reverse(rateEntities);
                         logger.info("AREA 收益率【{}】", rateEntities.toString());
                         JSONArray array = new JSONArray();
                         for (int i = 0; i < rateEntities.size(); i++) {
                             JSONObject object = new JSONObject();
                             object.put("rate", rateEntities.get(i).getRate());
                             object.put("time", rateEntities.get(i).getDateTime());
+                            object.put("bondCode", bondCode);
                             array.add(object);
                         }
-
                         //发送
-                        int[] rst = SendUtils.sendRateAndTime(bondCode, array);
+                        int[] rst = SendUtils.sendArea(bondCode, array);
                         //记录数据库
                         logger.info("设置当前的图像");
                         Constant.bufferedImageMap.put(bufferedImageMapKey, currentImg);
