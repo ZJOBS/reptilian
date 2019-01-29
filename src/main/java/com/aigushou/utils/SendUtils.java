@@ -90,6 +90,8 @@ public class SendUtils {
                 JSONObject jsonObject = sendPost(urlStr, pmp);
                 rst[i] = analysis(jsonObject);
             } catch (Exception e) {
+                //失败
+                rst[i] = 0;
                 logger.error(e.getMessage());
             }
         }
@@ -185,7 +187,6 @@ public class SendUtils {
             }
         } catch (Exception e) {
             logger.info("发送到【{}】,失败！ ", sendUrl);
-            e.printStackTrace();
         }
         return jsonObject;
     }
@@ -226,11 +227,11 @@ public class SendUtils {
                 logger.info("发送到【{}】,成功！ 返回结果:【{}】", sendUrl, jsonObject.toJSONString());
             }
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return jsonObject;
     }
