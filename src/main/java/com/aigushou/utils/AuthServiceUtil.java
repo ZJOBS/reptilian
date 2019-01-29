@@ -18,12 +18,11 @@ import java.util.Map;
 public class AuthServiceUtil {
 
 
-
     public static String getAuthParameterByIndex(int index) {
         // 官网获取的 API Key 更新为你注册的
-        String clientId = Constant.baiduProperties.getProperty("clientId" + index);
+        String clientId = Constant.baiDuProperties.getProperty("clientId" + index);
         // 官网获取的 Secret Key 更新为你注册的
-        String clientSecret = Constant.baiduProperties.getProperty("clientSecret" + index);
+        String clientSecret = Constant.baiDuProperties.getProperty("clientSecret" + index);
         return getAuth(clientId, clientSecret);
     }
 

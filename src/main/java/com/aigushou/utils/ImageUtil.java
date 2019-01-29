@@ -143,14 +143,13 @@ public class ImageUtil {
             try {
                 BufferedImage bi = list.get(i);
                 List<BufferedImage> rateTime = cutImage(bi, nodes);
-
                 for (int j = 0; j < rateTime.size(); j++) {
                     BufferedImage bi2 = rateTime.get(j);
                     File outputfile = new File("/Users/jiezhang/Downloads/cutImage/jianqie_" + i + "_" + j + ".png");
                     ImageIO.write(bi2, "png", outputfile);
                 }
             } catch (Exception e) {
-
+                logger.error(e.getMessage());
             }
 
         }

@@ -82,14 +82,16 @@ public class SendUtils {
         int[] rst = new int[Constant.send_environment.length];
         String urlStr;
         for (int i = 0; i < Constant.send_environment.length; i++) {
-            urlStr = Constant.send_environment[i];
-            urlStr = urlStr + "?bondCode=" + bondCode + "&rateAndTime=" + rateAndTimeList.toJSONString() + "&source=" + Constant.properties.getProperty("source");
-
-            Map<String, String> pmp = new HashMap<String, String>();
-            pmp.put("bondCode", bondCode);
-            pmp.put("rateAndTimeList", rateAndTimeList.toJSONString());
-            JSONObject jsonObject = sendPost(urlStr, pmp);
-            rst[i] = analysis(jsonObject);
+            try {
+                urlStr = Constant.send_environment[i];
+                Map<String, String> pmp = new HashMap<String, String>();
+                pmp.put("bondCode", bondCode);
+                pmp.put("rateAndTimeList", rateAndTimeList.toJSONString());
+                JSONObject jsonObject = sendPost(urlStr, pmp);
+                rst[i] = analysis(jsonObject);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
         }
         return rst;
     }

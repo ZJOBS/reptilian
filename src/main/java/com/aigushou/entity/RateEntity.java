@@ -40,4 +40,12 @@ public class RateEntity {
     public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
     }
+
+    @Override
+    public String toString() {
+        return "RateEntity{" +
+                "rate='" + rate + '\'' +
+                ", dateTime='" + dateTime + '\'' +
+                '}';
+    }
 }

@@ -32,7 +32,7 @@ public class Check {
     /**
      * 识别本地图片的文字，对选用使用的账号，一般情况，一个债对应一个账号，否则免费识别次数有限
      *
-     * @param file  本地图片地址
+     * @param file 本地图片地址
      * @return 识别结果，为json格式
      * @throws URISyntaxException URI打开异常
      * @throws IOException        io流异常
@@ -110,7 +110,6 @@ public class Check {
             }
         } catch (Exception e) {
             logger.error("发送请求失败:" + e.getMessage());
-            //System.out.println("发送请求失败:" + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -262,6 +261,7 @@ public class Check {
             date = format.parse(UTCTimeBuffer.toString());
             dateStr = format.format(date);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
         return dateStr;

@@ -201,24 +201,31 @@ public class AreaReptilianThread implements Runnable {
                         logger.info("AREA 收益率【{}】", rateEntities.toString());
                         JSONArray array = new JSONArray();
                         for (int i = 0; i < rateEntities.size(); i++) {
+                            if (rateEntities.get(i) == null) {
+                                //爬虫异常或界面上不足rateEntities.size()个
+                                continue;
+                            }
                             JSONObject object = new JSONObject();
                             object.put("rate", rateEntities.get(i).getRate());
                             object.put("time", rateEntities.get(i).getDateTime());
                             object.put("bondCode", bondCode);
                             array.add(object);
                         }
-                        //发送
-                        int[] rst = SendUtils.sendArea(bondCode, array);
-                        //记录数据库
+
+
+                        //先设置图片，再发送，防止发送失败大致一直解析把百度账号弄挂
                         logger.info("设置当前的图像");
                         Constant.bufferedImageMap.put(bufferedImageMapKey, currentImg);
 
+                        //发送
+                        int[] rst = SendUtils.sendArea(bondCode, array);
+
+                        //记录数据库
                         DataBaseUtils.insertArea(currentDateTimeStr, bondCode, array, "1", rst.toString());
                     } else {
                         //笔数相同，休眠100毫秒再爬，
                         TimeUnit.MILLISECONDS.sleep(100);
                     }
-
                 } else {
                     //不在时间范围内， 休眠100毫秒再爬
                     TimeUnit.MILLISECONDS.sleep(100);

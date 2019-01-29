@@ -123,6 +123,8 @@ public class CountDownReptilian implements Runnable {
             }
             rstList.set(index, new RateEntity(rateStr, rateTimeStr));
         } catch (Exception e) {
+            //防止list长度不一致，若异常，则填入null
+            rstList.set(index, null);
             logger.error(e.getMessage());
         } finally {
             count.countDown();
