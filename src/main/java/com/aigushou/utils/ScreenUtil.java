@@ -52,7 +52,8 @@ public class ScreenUtil {
                 result += (1 - ((float) abs / (max == 0 ? 1 : max)));
             }
             return (result / 256) * 100;
-        } catch (Exception exception) {
+        } catch (Exception e) {
+            logger.error("对比错误，返回0。【{}】", e.getMessage());
             return 0;
         }
     }

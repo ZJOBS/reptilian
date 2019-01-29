@@ -45,10 +45,8 @@ public class DataBaseUtils {
             ps.setObject(7, Constant.properties.getProperty("reptilian_type"));
             ps.execute();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
             logger.error("e.getMessage()");
         } catch (SQLException e) {
-            e.printStackTrace();
             logger.error("e.getMessage()");
         } finally {
             close(con, ps);
@@ -80,10 +78,8 @@ public class DataBaseUtils {
             ps.setObject(6, Constant.properties.getProperty("reptilian_type"));
             ps.execute();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
             logger.error("e.getMessage()");
         } catch (SQLException e) {
-            e.printStackTrace();
             logger.error("e.getMessage()");
         } finally {
             close(con, ps);
@@ -98,14 +94,16 @@ public class DataBaseUtils {
                 ps.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("PreparedStatement关闭异常 【{}】", e.getMessage());
         }
         try {
             if (con != null) {
                 con.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            logger.error("Connection关闭异常【{}】", e.getMessage());
+
         }
     }
 }

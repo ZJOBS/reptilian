@@ -110,7 +110,6 @@ public class Check {
             }
         } catch (Exception e) {
             logger.error("发送请求失败:" + e.getMessage());
-            e.printStackTrace();
             return null;
         }
         return null;
@@ -157,8 +156,6 @@ public class Check {
             }
         } catch (Exception e) {
             logger.error("发送请求失败:" + e.getMessage());
-            //System.out.println("发送请求失败:" + e.getMessage());
-            e.printStackTrace();
             return null;
         }
         return null;
@@ -262,7 +259,6 @@ public class Check {
             dateStr = format.format(date);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            e.printStackTrace();
         }
         return dateStr;
     }

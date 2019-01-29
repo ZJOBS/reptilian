@@ -2,6 +2,8 @@ package com.aigushou.utils;
 
 import com.aigushou.constant.Constant;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,6 +18,7 @@ import java.util.Map;
  * @author jiezhang
  */
 public class AuthServiceUtil {
+    private static Logger logger = LoggerFactory.getLogger(AuthServiceUtil.class);
 
 
     public static String getAuthParameterByIndex(int index) {
@@ -61,8 +64,7 @@ public class AuthServiceUtil {
             JSONObject jsonObject = JSONObject.parseObject(result.toString());
             return jsonObject.getString("access_token");
         } catch (Exception e) {
-            System.err.printf("获取token失败！");
-            e.printStackTrace(System.err);
+            logger.error("获取token失败！【{}】", e.getMessage());
         }
         return null;
     }

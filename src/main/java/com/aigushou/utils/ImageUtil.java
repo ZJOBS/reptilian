@@ -40,7 +40,7 @@ public class ImageUtil {
             in.read(data);
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("图片转换为Base64 异常【{}】", e.getMessage());
         }
         // 对字节数组Base64编码
         BASE64Encoder encoder = new BASE64Encoder();
@@ -70,7 +70,7 @@ public class ImageUtil {
             }
             return list;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("切分图片异常【{}】", e.getMessage());
         }
         return list;
     }
@@ -89,8 +89,6 @@ public class ImageUtil {
             BufferedImage buffImg = img.getSubimage(nodes.get(i).getX(), nodes.get(i).getY(), nodes.get(i).getWidth(), nodes.get(i).getHeight());
             list.add(buffImg);
         }
-
-
         return list;
     }
 
