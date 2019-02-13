@@ -5,10 +5,7 @@ import com.aigushou.constant.ThreadPoolUtil;
 import com.aigushou.entity.Node;
 import com.aigushou.entity.RateEntity;
 import com.aigushou.thread.common.HeartThread;
-import com.aigushou.utils.DataBaseUtils;
-import com.aigushou.utils.ImageUtil;
-import com.aigushou.utils.ScreenUtil;
-import com.aigushou.utils.SendUtils;
+import com.aigushou.utils.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -18,6 +15,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -126,7 +125,6 @@ public class AreaReptilianThread implements Runnable {
         while (true) {
             try {
                 //当前时间
-                String rate;
                 Date currentDate = new Date();
                 //计算休市时间
                 Date currentDateTime = new Date();
@@ -138,9 +136,6 @@ public class AreaReptilianThread implements Runnable {
                 Date endDateTime = dtf.parse(currentDateStr + endTime);
                 Date sendDateTime = dtf.parse(currentDateStr + sendTime);
 
-
-                Node node1 = new Node(180, 0, 80, 25);
-                Node node2 = new Node(407, 0, 100, 25);
 
                 boolean sendTime = false;
                 if (currentDateTime.before(endDateTime) && currentDateTime.after(sendDateTime)) {
@@ -171,57 +166,47 @@ public class AreaReptilianThread implements Runnable {
                         }
 
                         //截取区域图
-                        ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
+                        File image = ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
+                        JSONArray resultArray = new JSONArray();
+                        String str = Check.checkFile(image);
+                        JSONObject jsonObject = JSONObject.parseObject(str);
+                        JSONArray array = jsonObject.getJSONArray("words_result");
 
-                        //切割为7套数据 收益率——时间
-                        List<BufferedImage> rate_TimeImages = ImageUtil.cutRowImage(path + fileName + "." + imageFormat, 1, 7, 7);
-                        //
-//                        for (int i = 0; i <rate_TimeImages.size() ; i++) {
-//                            BufferedImage bi = rate_TimeImages.get(i);
-//                            File outputfile = new File(path+"/saved" + i + ".png");
-//                            ImageIO.write(bi, "png", outputfile);
-//                        }
+                        if (array.size() % 2 == 0) {
+                            for (int i = 0; i < array.size(); i = i + 2) {
+                                JSONObject object = new JSONObject();
+                                String rate = array.getJSONObject(i).getString("words");
+                                String rateDateTime = array.getJSONObject(i + 1).getString("words");
 
-                        //多线程识别
-                        int size = rate_TimeImages.size();
-                        CountDownLatch countDownLatch = new CountDownLatch(size);
+                                try {
+                                    Double.parseDouble(rate);
+                                    object.put("rate", rate);
+                                } catch (Exception e) {
+                                    throw new Exception("收益率爬去异常:" + rate);
+                                }
 
-                        List<RateEntity> rateEntities = new LinkedList<RateEntity>();
-                        for (int i = 0; i < size; i++) {
-                            rateEntities.add(new RateEntity());
-                        }
-
-                        for (int i = 0; i < size; i++) {
-                            ThreadPoolUtil.areaThreadPool.execute(new CountDownReptilian(countDownLatch, rate_TimeImages.get(i), node1, node2, rateEntities, i, path, imageFormat));
-                        }
-                        countDownLatch.await();
-
-                        //顺序颠倒，时间从小到大转换
-                        Collections.reverse(rateEntities);
-                        logger.info("AREA 收益率【{}】", rateEntities.toString());
-                        JSONArray array = new JSONArray();
-                        for (int i = 0; i < rateEntities.size(); i++) {
-                            if (rateEntities.get(i) == null) {
-                                //爬虫异常或界面上不足rateEntities.size()个
-                                continue;
+                                try {
+                                    //校验识别到的时间是否为时间格式 ，具体时间无所谓 "2018-12-12 "
+                                    LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                } catch (Exception e) {
+                                    throw new Exception("时间爬去异常:" + rateDateTime);
+                                }
+                                object.put("time", rateDateTime);
+                                object.put("bondCode", bondCode);
                             }
-                            JSONObject object = new JSONObject();
-                            object.put("rate", rateEntities.get(i).getRate());
-                            object.put("time", rateEntities.get(i).getDateTime());
-                            object.put("bondCode", bondCode);
-                            array.add(object);
+                        } else {
+                            throw new Exception("获取数据不成对！有问题！");
                         }
-
 
                         //先设置图片，再发送，防止发送失败大致一直解析把百度账号弄挂
                         logger.info("设置当前的图像");
                         Constant.bufferedImageMap.put(bufferedImageMapKey, currentImg);
 
                         //发送
-                        int[] rst = SendUtils.sendArea(bondCode, array);
+                        int[] rst = SendUtils.sendArea(bondCode, resultArray);
 
                         //记录数据库
-                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, array, "1", rst.toString());
+                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, resultArray, "1", rst.toString());
                     } else {
                         //笔数相同，休眠100毫秒再爬，
                         TimeUnit.MILLISECONDS.sleep(100);
@@ -237,7 +222,5 @@ public class AreaReptilianThread implements Runnable {
                 Constant.reptilianStateMap.put(bufferedImageMapKey, false);
             }
         }
-
     }
-
 }

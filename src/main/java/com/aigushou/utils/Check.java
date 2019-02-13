@@ -127,8 +127,7 @@ public class Check {
     private static String post(String param) {
         try {
             //开始搭建post请求
-            logger.error("进入post方法,准备发送百度查询");
-            //System.out.println("进入post方法,准备发送百度查询");
+            logger.info("进入post方法,准备发送百度查询");
             HttpClient httpClient = HttpClients.createDefault();
             HttpPost post = new HttpPost();
             URI url = null;
@@ -146,7 +145,7 @@ public class Check {
             HttpResponse response = httpClient.execute(post);
             if (response.getStatusLine().getStatusCode() == 200) {
                 String str;
-                /*读取服务器返回过来的json字符串数据*/
+                //读取服务器返回过来的json字符串数据
                 str = EntityUtils.toString(response.getEntity());
                 JSONObject jsonObject = JSONObject.parseObject(str);
                 JSONArray array = jsonObject.getJSONArray("words_result");
@@ -160,50 +159,6 @@ public class Check {
         }
         return null;
     }
-
-
-//    private static String xunFeiPost(String param) {
-//        try {
-//            //开始搭建post请求
-//            //System.out.println("进入post方法,准备发送讯飞查询");
-//            logger.info("进入post方法,准备发送讯飞查询");
-//            HttpClient httpClient = HttpClients.createDefault();
-//            HttpPost post = new HttpPost();
-//            URI url = null;
-//            String xunFeiURL = "http://webapi.xfyun.cn/v1/service/v1/ocr/general";
-//            url = new URI(xunFeiURL);
-//            post.setURI(url);
-//            post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-//            post.setHeader("X-Appid", "5bed141c");
-//            post.setHeader("X-CurTime", getUTCDate());
-//            post.setHeader("X-Param", "application/x-www-form-urlencoded; charset=utf-8");
-//            post.setHeader("X-CheckSum", "application/x-www-form-urlencoded; charset=utf-8");
-//
-//
-//            StringEntity entity = new StringEntity(param);
-//            post.setEntity(entity);
-//            logger.info("开始发送请求");
-//            //System.out.println("开始发送请求");
-//            HttpResponse response = httpClient.execute(post);
-//            if (response.getStatusLine().getStatusCode() == 200) {
-//                String str;
-//                /*读取服务器返回过来的json字符串数据*/
-//                str = EntityUtils.toString(response.getEntity());
-//                JSONObject jsonObject = JSONObject.parseObject(str);
-//                JSONArray array = jsonObject.getJSONArray("words_result");
-//                str = array.get(0).toString();
-//                str = JSONObject.parseObject(str).getString("words");
-//                return str;
-//            }
-//        } catch (Exception e) {
-//            logger.error("发送请求失败:" + e.getMessage());
-//            //System.out.println("发送请求失败:" + e.getMessage());
-//            e.printStackTrace();
-//            return null;
-//        }
-//
-//        return null;
-//    }
 
 
     /**
