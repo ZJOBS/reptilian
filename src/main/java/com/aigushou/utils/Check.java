@@ -148,9 +148,9 @@ public class Check {
                 //读取服务器返回过来的json字符串数据
                 str = EntityUtils.toString(response.getEntity());
                 JSONObject jsonObject = JSONObject.parseObject(str);
-                JSONArray array = jsonObject.getJSONArray("words_result");
-                str = array.get(0).toString();
-                str = JSONObject.parseObject(str).getString("words");
+//                JSONArray array = jsonObject.getJSONArray("words_result");
+//                str = array.get(0).toString();
+//                str = JSONObject.parseObject(str).getString("words");
                 return str;
             }
         } catch (Exception e) {
