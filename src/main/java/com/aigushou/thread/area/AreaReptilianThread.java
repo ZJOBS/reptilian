@@ -172,12 +172,11 @@ public class AreaReptilianThread implements Runnable {
                         JSONObject jsonObject = JSONObject.parseObject(str);
                         JSONArray array = jsonObject.getJSONArray("words_result");
 
-                        if (array.size() % 2 == 0) {
+                        if (array.size() % 2 == 0 && array.size() != 0) {
                             for (int i = 0; i < array.size(); i = i + 2) {
                                 JSONObject object = new JSONObject();
                                 String rate = array.getJSONObject(i).getString("words");
                                 String rateDateTime = array.getJSONObject(i + 1).getString("words");
-
                                 try {
                                     Double.parseDouble(rate);
                                     object.put("rate", rate);
@@ -193,7 +192,9 @@ public class AreaReptilianThread implements Runnable {
                                 }
                                 object.put("time", rateDateTime);
                                 object.put("bondCode", bondCode);
+                                resultArray.add(object);
                             }
+                            //保存并发送
                         } else {
                             throw new Exception("获取数据不成对！有问题！");
                         }
