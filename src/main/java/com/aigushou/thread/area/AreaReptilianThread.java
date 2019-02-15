@@ -17,9 +17,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -252,7 +250,7 @@ public class AreaReptilianThread implements Runnable {
                         int[] rst = SendUtils.sendArea(bondCode, resultArray);
 
                         //记录数据库
-                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, resultArray, "1", rst.toString());
+                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, resultArray, "1", Arrays.toString(rst));
                     } else {
                         //笔数相同，休眠100毫秒再爬，
                         TimeUnit.MILLISECONDS.sleep(100);
