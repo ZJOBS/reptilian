@@ -6,6 +6,7 @@ import com.aigushou.entity.Node;
 import com.aigushou.entity.RateEntity;
 import com.aigushou.thread.common.HeartThread;
 import com.aigushou.utils.*;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -119,6 +120,8 @@ public class AreaReptilianThread implements Runnable {
         Future future = ThreadPoolUtil.heartScheduledExecutorService.scheduleAtFixedRate(new HeartThread(bondCode, index, bufferedImageMapKey), 0, delay, TimeUnit.SECONDS);
 
 
+        Set<RateEntity> dayRates = new HashSet<RateEntity>(3000);
+
         //死循环对比
         while (true) {
             try {
@@ -166,7 +169,7 @@ public class AreaReptilianThread implements Runnable {
                         //截取区域图
                         ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
 
-                        //切割为7套数据 收益率——时间
+                        //切割为7套数据 收益率&时间
                         List<BufferedImage> rate_TimeImages = ImageUtil.cutRowImage(path + fileName + "." + imageFormat, 1, 7, 7);
                         //
 //                        for (int i = 0; i <rate_TimeImages.size() ; i++) {
@@ -201,7 +204,6 @@ public class AreaReptilianThread implements Runnable {
                             object.put("bondCode", bondCode);
                             resultArray.add(object);
                         }
-
 
 //                     一下代码为 同时解析
 
@@ -249,8 +251,18 @@ public class AreaReptilianThread implements Runnable {
                         //发送
                         int[] rst = SendUtils.sendArea(bondCode, resultArray);
 
+
+                        List<RateEntity> newRates = new ArrayList<RateEntity>();
+                        for (RateEntity rateEntity : rateEntities) {
+                            if (!dayRates.contains(rateEntity)) {
+                                newRates.add(rateEntity);
+                                dayRates.add(rateEntity);
+                            }
+                        }
+                        JSONArray newArray = JSONArray.parseArray(JSON.toJSONString(newRates));
+
                         //记录数据库
-                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, resultArray, "1", Arrays.toString(rst));
+                        DataBaseUtils.insertArea(currentDateTimeStr, bondCode, resultArray, newArray, "1", Arrays.toString(rst));
                     } else {
                         //笔数相同，休眠100毫秒再爬，
                         TimeUnit.MILLISECONDS.sleep(100);
@@ -258,7 +270,10 @@ public class AreaReptilianThread implements Runnable {
                 } else {
                     //不在时间范围内， 休眠100毫秒再爬
                     TimeUnit.MILLISECONDS.sleep(100);
+                    //清楚当日爬去的收益率
+                    dayRates.clear();
                     logger.info("不在时间范围内，不需要扒");
+
                 }
                 Constant.reptilianStateMap.put(bufferedImageMapKey, true);
             } catch (Exception e) {

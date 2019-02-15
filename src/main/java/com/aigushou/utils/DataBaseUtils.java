@@ -57,10 +57,14 @@ public class DataBaseUtils {
     /**
      * 插入数据库
      *
-     * @param date
-     * @param bondCode
+     * @param date       时间
+     * @param bondCode   债券code
+     * @param rateArrays 收益率数据
+     * @param newArray   对比之前新增的
+     * @param send       是否发送
+     * @param sendRst    发送结果
      */
-    public static void insertArea(String date, String bondCode, JSONArray jsonArray, String send, String sendRst) {
+    public static void insertArea(String date, String bondCode, JSONArray rateArrays, JSONArray newArray, String send, String sendRst) {
         logger.info("开始存入数据库");
         Connection con = null;
         PreparedStatement ps = null;
@@ -68,14 +72,15 @@ public class DataBaseUtils {
             Class.forName("com.mysql.jdbc.Driver");
             con = DriverManager.getConnection(Constant.dbUrl, Constant.dbUser, Constant.dbPassword);
             //问号叫做占位符，这样可以避免SQL注入
-            String sql = "insert into +Constant.dbDatabase+(trade_date,bond_code,content,send,sendrst,reptilian_type) values (?,?,?,?,?,?)";
+            String sql = "insert into +Constant.dbDatabase+(trade_date,bond_code,content,new_content,send,sendrst,reptilian_type) values (?,?,?,?,?,?,?)";
             ps = con.prepareStatement(sql);
             ps.setObject(1, date);
             ps.setObject(2, bondCode);
-            ps.setObject(3, jsonArray.toJSONString());
-            ps.setObject(4, send);
-            ps.setObject(5, sendRst);
-            ps.setObject(6, Constant.properties.getProperty("reptilian_type"));
+            ps.setObject(3, rateArrays.toJSONString());
+            ps.setObject(4, newArray.toJSONString());
+            ps.setObject(5, send);
+            ps.setObject(6, sendRst);
+            ps.setObject(7, Constant.properties.getProperty("reptilian_type"));
             ps.execute();
         } catch (ClassNotFoundException e) {
             logger.error(e.getMessage());
