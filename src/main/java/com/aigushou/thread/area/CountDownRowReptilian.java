@@ -81,6 +81,7 @@ public class CountDownRowReptilian implements Runnable {
                 RateEntity rateEntity = Check.analysisBaiDuPairedResult(array);
                 rstList.set(index, rateEntity);
             } else {
+                logger.error("识别到的数据为{}",array);
                 throw new Exception("识别数据未成对");
             }
         } catch (Exception e) {

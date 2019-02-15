@@ -117,7 +117,7 @@ public class AreaReptilianThread implements Runnable {
         String bufferedImageMapKey = Constant.bufferedImageMapKey + index;
         Constant.reptilianStateMap.put(bufferedImageMapKey, false);
         int delay = Integer.parseInt(Constant.properties.getProperty("delay"));
-        Future future = ThreadPoolUtil.heartScheduledExecutorService.scheduleAtFixedRate(new HeartThread(bondCode, index, bufferedImageMapKey), 0, delay, TimeUnit.SECONDS);
+        //Future future = ThreadPoolUtil.heartScheduledExecutorService.scheduleAtFixedRate(new HeartThread(bondCode, index, bufferedImageMapKey), 0, delay, TimeUnit.SECONDS);
 
 
         Set<RateEntity> dayRates = new HashSet<RateEntity>(3000);

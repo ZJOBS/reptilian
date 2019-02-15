@@ -1,5 +1,7 @@
 package com.aigushou.entity;
 
+import java.util.Objects;
+
 /**
  * 收益对象
  *
@@ -47,5 +49,19 @@ public class RateEntity {
                 "rate='" + rate + '\'' +
                 ", dateTime='" + dateTime + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RateEntity that = (RateEntity) o;
+        return Objects.equals(rate, that.rate) &&
+                Objects.equals(dateTime, that.dateTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rate, dateTime);
     }
 }
