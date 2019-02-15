@@ -14,6 +14,7 @@ import java.util.Date;
 
 /**
  * 位置校验（未完成）
+ *
  * @author jiezhang
  */
 public class PositionThread implements Runnable {
@@ -123,6 +124,6 @@ public class PositionThread implements Runnable {
         //汇率图
         File imageFile = cam.snapshot(path, fileName, x, y, width, height);
         //识别交易笔数
-        return Check.checkFile(imageFile, baiDuNumIndex);
+        return Check.checkFile(imageFile);
     }
 }
