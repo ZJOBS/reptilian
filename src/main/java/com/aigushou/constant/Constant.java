@@ -27,6 +27,8 @@ public class Constant {
      */
     public static String dbUrl;
 
+    public static String dbDatabase;
+
     /**
      * 数据库用户名
      */
@@ -286,6 +288,7 @@ public class Constant {
         dbUrl = properties.getProperty("DBurl");
         dbUser = properties.getProperty("DBuser");
         dbPassword = properties.getProperty("DBpassword");
+        dbDatabase = properties.getProperty("DBdatabase");
     }
 
 

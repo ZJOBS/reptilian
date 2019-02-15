@@ -360,7 +360,7 @@ public class LongReptilianThread implements Runnable {
 //        File imageFile = cam.snapshot(path, fileName, x, y, width, height);
         //识别交易笔数
         logger.info("准备进入checkFile" + imageFile.getName());
-        return Check.checkFile(imageFile, baiDuNumIndex);
+        return Check.checkFile(imageFile);
     }
 
 }
