@@ -78,9 +78,9 @@ public class DataBaseUtils {
             ps.setObject(6, Constant.properties.getProperty("reptilian_type"));
             ps.execute();
         } catch (ClassNotFoundException e) {
-            logger.error("e.getMessage()");
+            logger.error(e.getMessage());
         } catch (SQLException e) {
-            logger.error("e.getMessage()");
+            logger.error(e.getMessage());
         } finally {
             close(con, ps);
         }
