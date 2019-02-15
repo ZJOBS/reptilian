@@ -110,13 +110,8 @@ public class ReptilianThread implements Runnable {
 
     @Override
     public void run() {
-
-
         logger.info("");
         logger.info("");
-        logger.info("");
-        logger.info("");
-
 
         SimpleDateFormat tf = new SimpleDateFormat("HHmmss");
 
@@ -156,24 +151,18 @@ public class ReptilianThread implements Runnable {
                 }
 
                 logger.info("文件路径【{]】", path);
-                //System.out.println("文件路径" + path);
                 String transactionPenNumber = recognition(path, fileNameTN, tNX, tNY, tNWidth, tNHeight);
                 String tn = Constant.tnList.get(index);
 
                 if (transactionPenNumber.equals("") || transactionPenNumber.equals("0")) {
                     logger.info("没有新的成交量");
-                    //System.out.println("没有新的成交量");
                     return;
                 } else {
                     //将历史数据改为
-
                     //休眠500毫秒再爬，
                     TimeUnit.MILLISECONDS.sleep(500);
-
                     Constant.tnList.set(index, transactionPenNumber);
-
                     rate = recognition(path, fileName, rateX, rateY, rateWidth, rateHeight);
-
                     Integer transactionPenInt = Integer.parseInt(transactionPenNumber);
                     Integer tnInt = Integer.parseInt(tn);
 
@@ -190,7 +179,6 @@ public class ReptilianThread implements Runnable {
                         //小于的时候，缓存中刷为小的transactionPenNumber
                         Constant.tnList.set(index, transactionPenNumber);
                         //存库
-
                         DataBaseUtils.insert(currentDateTimeStr, rate, bondCode, transactionPenNumber, "0", Arrays.toString(sendRst));
                     }
                     //发送到远端
@@ -227,7 +215,7 @@ public class ReptilianThread implements Runnable {
         File imageFile = cam.snapshot(path, fileName, x, y, width, height);
         //识别交易笔数
         System.out.println("准备进入checkFile" + imageFile.getName());
-        return Check.checkFile(imageFile, index);
+        return Check.checkFile(imageFile);
     }
 
 }

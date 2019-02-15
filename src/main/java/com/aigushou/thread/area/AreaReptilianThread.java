@@ -166,38 +166,83 @@ public class AreaReptilianThread implements Runnable {
                         }
 
                         //截取区域图
-                        File image = ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
-                        JSONArray resultArray = new JSONArray();
-                        String str = Check.checkFile(image);
-                        JSONObject jsonObject = JSONObject.parseObject(str);
-                        JSONArray array = jsonObject.getJSONArray("words_result");
+                        ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
 
-                        if (array.size() % 2 == 0 && array.size() != 0) {
-                            for (int i = 0; i < array.size(); i = i + 2) {
-                                JSONObject object = new JSONObject();
-                                String rate = array.getJSONObject(i).getString("words");
-                                String rateDateTime = array.getJSONObject(i + 1).getString("words");
-                                try {
-                                    Double.parseDouble(rate);
-                                    object.put("rate", rate);
-                                } catch (Exception e) {
-                                    throw new Exception("收益率爬去异常:" + rate);
-                                }
+                        //切割为7套数据 收益率——时间
+                        List<BufferedImage> rate_TimeImages = ImageUtil.cutRowImage(path + fileName + "." + imageFormat, 1, 7, 7);
+                        //
+//                        for (int i = 0; i <rate_TimeImages.size() ; i++) {
+//                            BufferedImage bi = rate_TimeImages.get(i);
+//                            File outputfile = new File(path+"/saved" + i + ".png");
+//                            ImageIO.write(bi, "png", outputfile);
+//                        }
 
-                                try {
-                                    //校验识别到的时间是否为时间格式 ，具体时间无所谓 "2018-12-12 "
-                                    LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                } catch (Exception e) {
-                                    throw new Exception("时间爬去异常:" + rateDateTime);
-                                }
-                                object.put("time", rateDateTime);
-                                object.put("bondCode", bondCode);
-                                resultArray.add(object);
-                            }
-                            //保存并发送
-                        } else {
-                            throw new Exception("获取数据不成对！有问题！");
+                        //多线程识别
+                        int size = rate_TimeImages.size();
+                        CountDownLatch countDownLatch = new CountDownLatch(size);
+
+                        List<RateEntity> rateEntities = new LinkedList<RateEntity>();
+                        for (int i = 0; i < size; i++) {
+                            rateEntities.add(new RateEntity());
                         }
+
+                        for (int i = 0; i < size; i++) {
+                            ThreadPoolUtil.areaThreadPool.execute(new CountDownRowReptilian(countDownLatch, rate_TimeImages.get(i), rateEntities, i, path, imageFormat));
+                        }
+                        countDownLatch.await();
+
+                        JSONArray resultArray = new JSONArray();
+                        for (int i = 0; i < rateEntities.size(); i++) {
+                            if (rateEntities.get(i) == null) {
+                                //爬虫异常或界面上不足rateEntities.size()个
+                                continue;
+                            }
+                            JSONObject object = new JSONObject();
+                            object.put("rate", rateEntities.get(i).getRate());
+                            object.put("time", rateEntities.get(i).getDateTime());
+                            object.put("bondCode", bondCode);
+                            resultArray.add(object);
+                        }
+
+
+//                     一下代码为 同时解析
+
+
+//                        //截取区域图
+//                        File image = ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
+//
+//                        JSONArray resultArray = new JSONArray();
+//                        String str = Check.checkFile(image);
+//                        JSONObject jsonObject = JSONObject.parseObject(str);
+//                        JSONArray array = jsonObject.getJSONArray("words_result");
+//
+//                        if (array.size() % 2 == 0 && array.size() != 0) {
+//                            for (int i = 0; i < array.size(); i = i + 2) {
+//                                JSONObject object = new JSONObject();
+//                                String rate = array.getJSONObject(i).getString("words");
+//                                String rateDateTime = array.getJSONObject(i + 1).getString("words");
+//                                try {
+//                                    Double.parseDouble(rate);
+//                                    object.put("rate", rate);
+//                                } catch (Exception e) {
+//                                    throw new Exception("收益率爬去异常:" + rate);
+//                                }
+//
+//                                try {
+//                                    //校验识别到的时间是否为时间格式 ，具体时间无所谓 "2018-12-12 "
+//                                    LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+//                                } catch (Exception e) {
+//                                    throw new Exception("时间爬去异常:" + rateDateTime);
+//                                }
+//                                object.put("time", rateDateTime);
+//                                object.put("bondCode", bondCode);
+//                                resultArray.add(object);
+//                            }
+//                            //保存并发送
+//                        } else {
+//                            throw new Exception("获取数据不成对！有问题！");
+//                        }
+                        //          一上代码为 同时解析
 
                         //先设置图片，再发送，防止发送失败大致一直解析把百度账号弄挂
                         logger.info("设置当前的图像");
