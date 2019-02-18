@@ -2,6 +2,7 @@ package com.aigushou.constant;
 
 import com.aigushou.App;
 import com.aigushou.utils.AuthServiceUtil;
+import com.baidu.aip.ocr.AipOcr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +126,12 @@ public class Constant {
      */
     private static BlockingQueue<String> baiDuAccountQueue;
 
+
+    /**
+     * 百度图像识别对象
+     */
+    private static BlockingQueue<AipOcr> baiDuAipOcrQueue;
+
     static {
         properties = getProperties();
         send_environment = getSendEnvironment();
@@ -134,6 +141,7 @@ public class Constant {
         send_heart_environment = getSendHeartEnvironment();
         sendErrorEnvironment = getSendErrorEnvironment();
         baiDuAccountQueue = getBaiDuAccountQueue();
+        baiDuAipOcrQueue = getBaiDuAipOcrQueue();
         setDB();
     }
 
@@ -260,6 +268,28 @@ public class Constant {
 
 
     /**
+     * 百度OCR对象队列
+     *
+     * @return
+     */
+    private static BlockingQueue<AipOcr> getBaiDuAipOcrQueue() {
+        logger.info("百度ApiOcr入队");
+        BlockingQueue<AipOcr> baiDuQueue = new LinkedBlockingDeque<AipOcr>();
+        int baiDuAccountNum = Integer.parseInt(baiDuProperties.getProperty("baiDuAccountNum"));
+        List<AipOcr> accountList = new ArrayList<AipOcr>();
+        for (int i = 0; i < baiDuAccountNum; i++) {
+            AipOcr aipOcr = AuthServiceUtil.getOcrParameterByIndex(i);
+            accountList.add(aipOcr);
+        }
+        for (int i = 0; i < 120; i++) {
+            int current = i % baiDuAccountNum;
+            baiDuQueue.offer(accountList.get(current));
+        }
+        logger.info("百度ApiOcr入队完成");
+        return baiDuQueue;
+    }
+
+    /**
      * 心跳地址
      *
      * @return
@@ -302,6 +332,19 @@ public class Constant {
         String account = baiDuAccountQueue.poll();
         baiDuAccountQueue.offer(account);
         return account;
+    }
+
+
+    /**
+     * 获取百度ocr
+     *
+     * @return
+     */
+    public synchronized static AipOcr getBaiDuOcrByBlockingQueue() {
+        //从队列中获取百度账号并放入到队尾
+        AipOcr aipOcr = baiDuAipOcrQueue.poll();
+        baiDuAipOcrQueue.offer(aipOcr);
+        return aipOcr;
     }
 
 

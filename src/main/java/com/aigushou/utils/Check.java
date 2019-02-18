@@ -4,6 +4,7 @@ import com.aigushou.constant.Constant;
 import com.aigushou.entity.RateEntity;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baidu.aip.ocr.AipOcr;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -104,7 +106,7 @@ public class Check {
 
 
     /**
-     * 只传入一行数据
+     * 传入一行数据，解析 时间和收益率
      *
      * @param array
      * @return
@@ -188,5 +190,32 @@ public class Check {
         return dateStr;
     }
 
+
+//    /**
+//     * 百度Ocr高精度版解析
+//     *
+//     * @return
+//     */
+//    public static JSONObject accurate(byte[] file) {
+//        HashMap<String, String> options = new HashMap<String, String>();
+//        options.put("detect_direction", "false");
+//        options.put("probability", "false");
+//        JSONObject rst = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(file, options).toString(2));
+//        return rst;
+//    }
+
+    /**
+     * 百度Ocr高精度版解析
+     *
+     * @return
+     */
+    public static JSONArray accurate(String path) {
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("detect_direction", "false");
+        options.put("probability", "false");
+        JSONObject obj = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(path, options).toString(2));
+        JSONArray array = obj.getJSONArray("words_result");
+        return array;
+    }
 
 }

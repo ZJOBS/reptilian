@@ -2,6 +2,7 @@ package com.aigushou.utils;
 
 import com.aigushou.constant.Constant;
 import com.alibaba.fastjson.JSONObject;
+import com.baidu.aip.ocr.AipOcr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +21,33 @@ import java.util.Map;
 public class AuthServiceUtil {
     private static Logger logger = LoggerFactory.getLogger(AuthServiceUtil.class);
 
-
+    /**
+     * 通过下标获取百度权限
+     *
+     * @param index
+     * @return
+     */
     public static String getAuthParameterByIndex(int index) {
         // 官网获取的 API Key 更新为你注册的
         String clientId = Constant.baiDuProperties.getProperty("clientId" + index);
         // 官网获取的 Secret Key 更新为你注册的
         String clientSecret = Constant.baiDuProperties.getProperty("clientSecret" + index);
         return getAuth(clientId, clientSecret);
+    }
+
+    /**
+     * 通过下标获取百度Ocr
+     *
+     * @param index
+     * @return
+     */
+    public static AipOcr getOcrParameterByIndex(int index) {
+        // 官网获取的 API Key 更新为你注册的
+        String API_KEY = Constant.baiDuProperties.getProperty("clientId" + index);
+        // 官网获取的 Secret Key 更新为你注册的
+        String SECRET_KEY = Constant.baiDuProperties.getProperty("clientSecret" + index);
+        String APP_ID = Constant.baiDuProperties.getProperty("appId" + index);
+        return getBaiDuOcr(APP_ID, API_KEY, SECRET_KEY);
     }
 
 
@@ -69,5 +90,20 @@ public class AuthServiceUtil {
         return null;
     }
 
+
+    /**
+     * @param APP_ID     百度云官网获取的 APP_ID
+     * @param API_KEY    百度云官网获取的 API_KEY
+     * @param SECRET_KEY 百度云官网获取的 SECRET_KEY
+     * @return
+     */
+    private static AipOcr getBaiDuOcr(String APP_ID, String API_KEY, String SECRET_KEY) {
+        AipOcr client = new AipOcr(APP_ID, API_KEY, SECRET_KEY);
+        //设置连接超时时间
+        client.setConnectionTimeoutInMillis(2000);
+        //设置通讯超时时间
+        client.setSocketTimeoutInMillis(60000);
+        return client;
+    }
 
 }
