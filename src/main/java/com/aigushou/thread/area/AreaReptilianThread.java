@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -203,45 +204,6 @@ public class AreaReptilianThread implements Runnable {
                             object.put("bondCode", bondCode);
                             resultArray.add(object);
                         }
-
-//                     一下代码为 同时解析
-
-
-//                        //截取区域图
-//                        File image = ScreenUtil.screenshot(path, fileName, imageFormat, aX, aY, aWidth, aHeight);
-//
-//                        JSONArray resultArray = new JSONArray();
-//                        String str = Check.checkFile(image);
-//                        JSONObject jsonObject = JSONObject.parseObject(str);
-//                        JSONArray array = jsonObject.getJSONArray("words_result");
-//
-//                        if (array.size() % 2 == 0 && array.size() != 0) {
-//                            for (int i = 0; i < array.size(); i = i + 2) {
-//                                JSONObject object = new JSONObject();
-//                                String rate = array.getJSONObject(i).getString("words");
-//                                String rateDateTime = array.getJSONObject(i + 1).getString("words");
-//                                try {
-//                                    Double.parseDouble(rate);
-//                                    object.put("rate", rate);
-//                                } catch (Exception e) {
-//                                    throw new Exception("收益率爬去异常:" + rate);
-//                                }
-//
-//                                try {
-//                                    //校验识别到的时间是否为时间格式 ，具体时间无所谓 "2018-12-12 "
-//                                    LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-//                                } catch (Exception e) {
-//                                    throw new Exception("时间爬去异常:" + rateDateTime);
-//                                }
-//                                object.put("time", rateDateTime);
-//                                object.put("bondCode", bondCode);
-//                                resultArray.add(object);
-//                            }
-//                            //保存并发送
-//                        } else {
-//                            throw new Exception("获取数据不成对！有问题！");
-//                        }
-                        //          一上代码为 同时解析
 
                         //先设置图片，再发送，防止发送失败大致一直解析把百度账号弄挂
                         logger.info("设置当前的图像");
