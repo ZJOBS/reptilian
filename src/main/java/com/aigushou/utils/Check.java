@@ -113,21 +113,17 @@ public class Check {
      * @throws Exception
      */
     public static RateEntity analysisBaiDuPairedResult(JSONArray array) throws Exception {
-        RateEntity entity = new RateEntity();
-        String rate = array.getJSONObject(0).getString("words");
-        String rateDateTime = array.getJSONObject(1).getString("words");
+        RateEntity entity = null;
+        String rate = "";
+        String rateDateTime = "";
         try {
+            rate = array.getJSONObject(0).getString("words");
+            rateDateTime = array.getJSONObject(1).getString("words");
             Double.parseDouble(rate);
-            entity.setRate(rate);
-        } catch (Exception e) {
-            throw new Exception("收益率爬去异常:" + rate);
-        }
-        try {
-            //校验识别到的时间是否为时间格式 ，具体时间无所谓 "2018-12-12 "
             LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            entity.setDateTime(rateDateTime);
+            entity = new RateEntity(rate, rateDateTime);
         } catch (Exception e) {
-            throw new Exception("时间爬去异常:" + rateDateTime);
+            logger.error("收益率【】和时间【】解析异常", rate, rateDateTime);
         }
         return entity;
     }
