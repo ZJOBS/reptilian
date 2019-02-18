@@ -120,7 +120,10 @@ public class AreaReptilianThread implements Runnable {
         //Future future = ThreadPoolUtil.heartScheduledExecutorService.scheduleAtFixedRate(new HeartThread(bondCode, index, bufferedImageMapKey), 0, delay, TimeUnit.SECONDS);
 
 
+        //当日所有日收益率
         Set<RateEntity> dayRates = new HashSet<RateEntity>(3000);
+        //最后的时间
+        String lastRateTime;
 
         //死循环对比
         while (true) {

@@ -87,6 +87,7 @@ public class CountDownRowReptilian implements Runnable {
             }
             rstList.set(index, rateEntity);
         } catch (Exception e) {
+            rstList.set(index, null);
             logger.error(e.getMessage());
         } finally {
             count.countDown();
