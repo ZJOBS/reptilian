@@ -106,8 +106,6 @@ public class AreaReptilianThread implements Runnable {
         SimpleDateFormat dtf = new SimpleDateFormat("yyyyMMddHHmmss");
         logger.info("");
         logger.info("");
-        logger.info("");
-        logger.info("");
 
         String bufferedImageMapKey = Constant.bufferedImageMapKey + index;
         Constant.reptilianStateMap.put(bufferedImageMapKey, false);
@@ -117,8 +115,6 @@ public class AreaReptilianThread implements Runnable {
 
         //当日所有日收益率
         Set<RateEntity> dayRates = new HashSet<RateEntity>(3000);
-        //最后的时间
-        String lastRateTime;
 
         //死循环对比
         while (true) {
