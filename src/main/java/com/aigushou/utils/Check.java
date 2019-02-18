@@ -133,7 +133,7 @@ public class Check {
                 entity = new RateEntity(rate, rateDateTime);
             }
         } catch (Exception e) {
-            logger.error("收益率【】和时间【】解析异常", rate, rateDateTime);
+            logger.error("收益率【{}】和时间【{}】解析异常", rate, rateDateTime);
         }
         return entity;
     }
