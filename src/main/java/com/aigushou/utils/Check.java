@@ -215,7 +215,7 @@ public class Check {
      * @return
      */
     public static JSONArray basicGeneral(String path) {
-        JSONObject obj = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(path, getOcrOptions()).toString(2));
+        JSONObject obj = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicGeneralUrl(path, getOcrOptions()).toString(2));
         JSONArray array = obj.getJSONArray("words_result");
         return array;
     }
