@@ -162,6 +162,8 @@ public class AreaReptilianThread implements Runnable {
                         //大区域发生变化
                         // 路径为默认路径+年月日
                         String path = imagePath + df.format(currentDate) + "/";
+
+                        String areaDateTime = tf.format(currentDate);
                         //区域文件名
                         String fileName = "AREA_" + tf.format(currentDate);
                         File file = new File(path);
@@ -191,7 +193,7 @@ public class AreaReptilianThread implements Runnable {
                         }
 
                         for (int i = 0; i < size; i++) {
-                            ThreadPoolUtil.areaThreadPool.execute(new CountDownRowReptilian(countDownLatch, rate_TimeImages.get(i), rateEntities, i, path, imageFormat));
+                            ThreadPoolUtil.areaThreadPool.execute(new CountDownRowReptilian(countDownLatch, rate_TimeImages.get(i), rateEntities, i, path, imageFormat, areaDateTime));
                         }
                         countDownLatch.await();
 

@@ -52,24 +52,30 @@ public class CountDownRowReptilian implements Runnable {
     private final String path;
 
     /**
+     * 区域截图时间
+     */
+    private final String areaDateTime;
+
+    /**
      * 图片格式
      */
     private final String imageFormat;
 
-    public CountDownRowReptilian(CountDownLatch count, BufferedImage image, List rstList, int index, String path, String imageFormat) {
+    public CountDownRowReptilian(CountDownLatch count, BufferedImage image, List rstList, int index, String path, String imageFormat, String areaDateTime) {
         this.count = count;
         this.image = image;
         this.rstList = rstList;
         this.index = index;
         this.path = path;
         this.imageFormat = imageFormat;
+        this.areaDateTime = areaDateTime;
     }
 
     @Override
     public void run() {
         LocalDateTime localDateTime = LocalDateTime.now();
         String dateTimeStr = localDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String filePath = path + "/saved_" + index + "_" + "rate_time.png";
+        String filePath = path + "/saved_" + areaDateTime + index + "_" + "rate_time.png";
         JSONArray array;
         try {
             File rateFile = new File(filePath);
