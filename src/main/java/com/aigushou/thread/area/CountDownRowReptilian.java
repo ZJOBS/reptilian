@@ -75,7 +75,7 @@ public class CountDownRowReptilian implements Runnable {
     public void run() {
         LocalDateTime localDateTime = LocalDateTime.now();
         String dateTimeStr = localDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String filePath = path + "/saved_" + areaDateTime + index + "_" + "rate_time.png";
+        String filePath = path + "saved_" + areaDateTime + index + "_" + "rate_time.png";
         JSONArray array;
         try {
             File rateFile = new File(filePath);
