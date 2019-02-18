@@ -122,14 +122,13 @@ public class Check {
             rate = array.getJSONObject(0).getString("words");
             rateDateTime = array.getJSONObject(1).getString("words");
             LocalDateTime ldt = LocalDateTime.parse(df.format(now) + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
+            Double.parseDouble(rate);
             //判断获取时间大于当前时间时，为异常数据，抛弃
             long duration = DateTimeUtils.duration(now, ldt);
             if (duration > 120) {
                 //获取时间超过当前时间两分钟为异常数据，正常情况下，时间已经小于当前时间，考虑到机器间的时间差，故设定为两分钟，如出现问题，再往小调
                 logger.error("解析到的数据 大于当前时间");
             } else {
-                Double.parseDouble(rate);
                 entity = new RateEntity(rate, rateDateTime);
             }
         } catch (Exception e) {
