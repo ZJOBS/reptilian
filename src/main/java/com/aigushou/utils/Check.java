@@ -210,7 +210,7 @@ public class Check {
 
 
     /**
-     * 百度Ocr高精度版解析
+     * 百度Ocr基础版解析
      *
      * @return
      */
