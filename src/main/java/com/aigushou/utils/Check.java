@@ -121,6 +121,7 @@ public class Check {
         try {
             rate = array.getJSONObject(0).getString("words");
             rateDateTime = array.getJSONObject(1).getString("words");
+
             LocalDateTime ldt = LocalDateTime.parse(df.format(now) + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             Double.parseDouble(rate);
             //判断获取时间大于当前时间时，为异常数据，抛弃
@@ -196,32 +197,34 @@ public class Check {
     }
 
 
-//    /**
-//     * 百度Ocr高精度版解析
-//     *
-//     * @return
-//     */
-//    public static JSONObject accurate(byte[] file) {
-//        HashMap<String, String> options = new HashMap<String, String>();
-//        options.put("detect_direction", "false");
-//        options.put("probability", "false");
-//        JSONObject rst = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(file, options).toString(2));
-//        return rst;
-//    }
-
     /**
      * 百度Ocr高精度版解析
      *
      * @return
      */
     public static JSONArray accurate(String path) {
-        HashMap<String, String> options = new HashMap<String, String>();
-        options.put("detect_direction", "false");
-        options.put("probability", "false");
-        JSONObject obj = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(path, options).toString(2));
+        JSONObject obj = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(path, getOcrOptions()).toString(2));
         JSONArray array = obj.getJSONArray("words_result");
         return array;
     }
 
+
+    /**
+     * 百度Ocr高精度版解析
+     *
+     * @return
+     */
+    public static JSONArray basicGeneral(String path) {
+        JSONObject obj = JSONObject.parseObject(Constant.getBaiDuOcrByBlockingQueue().basicAccurateGeneral(path, getOcrOptions()).toString(2));
+        JSONArray array = obj.getJSONArray("words_result");
+        return array;
+    }
+
+    private static HashMap<String, String> getOcrOptions() {
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("detect_direction", "false");
+        options.put("probability", "false");
+        return options;
+    }
 
 }

@@ -35,7 +35,6 @@ public class GuiCamera {
      */
     public File snapshot(String path, String fileName, int x, int y, int width, int height) {
         logger.info("开始截图----");
-        //System.out.println("开始截图----");
         BufferedImage screenshot = null;
         File f = null;
         try {
@@ -44,18 +43,14 @@ public class GuiCamera {
             //根据文件前缀变量和文件格式变量，自动生成文件名
             String name = path + fileName + "." + imageFormat;
             f = new File(name);
-            //System.out.println("开始保存图片----" + name);
             //将screenshot对象写入图像文件
             ImageIO.write(screenshot, imageFormat, f);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            //System.out.println(e.getMessage());
         }
         logger.info("保存图片完成---");
-        //System.out.println("保存图片完成---");
         return f;
     }
-
 
 
 }
