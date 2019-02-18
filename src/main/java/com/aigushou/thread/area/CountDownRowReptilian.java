@@ -69,15 +69,17 @@ public class CountDownRowReptilian implements Runnable {
     public void run() {
         LocalDateTime localDateTime = LocalDateTime.now();
         String dateTimeStr = localDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String filePath = path + "/saved_" + index + "_" + "rate_time.png";
+        JSONArray array;
         try {
 
-            String filePath = path + "/saved_" + index + "_" + "rate_time.png";
+
             File rateFile = new File(filePath);
             ImageIO.write(image, "png", rateFile);
 
             //发送 百度识别
             String result = Check.checkFile(rateFile);
-            JSONArray array = Check.analysisBaiDuResult(result);
+            array = Check.analysisBaiDuResult(result);
             if (array.size() == 2) {
                 RateEntity rateEntity = Check.analysisBaiDuPairedResult(array);
                 rstList.set(index, rateEntity);
@@ -95,6 +97,17 @@ public class CountDownRowReptilian implements Runnable {
             }
         } catch (Exception e) {
             //防止list长度不一致，若异常，则填入null
+
+            array = Check.accurate(filePath);
+            if (array.size() == 2) {
+                RateEntity rateEntity = null;
+                try {
+                    rateEntity = Check.analysisBaiDuPairedResult(array);
+                } catch (Exception e1) {
+                    logger.error(e1.getMessage());
+                }
+                rstList.set(index, rateEntity);
+            }
             rstList.set(index, null);
             logger.error(e.getMessage());
         } finally {
