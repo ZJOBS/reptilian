@@ -81,9 +81,9 @@ public class CountDownRowReptilian implements Runnable {
             File rateFile = new File(filePath);
             ImageIO.write(image, "png", rateFile);
 
-            //发送 百度识别
-            array  = Check.basicGeneral(filePath);
-            //array = Check.analysisBaiDuResult(result);
+            //发送 百度基础版本识别，需要使用老API，新API有问题
+            String result = Check.checkFile(rateFile);
+            array = Check.analysisBaiDuResult(result);
             RateEntity rateEntity = Check.analysisBaiDuPairedResult(array);
 
             if (rateEntity == null) {
