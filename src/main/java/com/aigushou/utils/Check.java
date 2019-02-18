@@ -4,7 +4,6 @@ import com.aigushou.constant.Constant;
 import com.aigushou.entity.RateEntity;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baidu.aip.ocr.AipOcr;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -113,15 +112,26 @@ public class Check {
      * @throws Exception
      */
     public static RateEntity analysisBaiDuPairedResult(JSONArray array) throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
         RateEntity entity = null;
         String rate = "";
         String rateDateTime = "";
         try {
             rate = array.getJSONObject(0).getString("words");
             rateDateTime = array.getJSONObject(1).getString("words");
-            Double.parseDouble(rate);
-            LocalDateTime ldt = LocalDateTime.parse("2018-12-12 " + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            entity = new RateEntity(rate, rateDateTime);
+            LocalDateTime ldt = LocalDateTime.parse(df.format(now) + rateDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+            //判断获取时间大于当前时间时，为异常数据，抛弃
+            long duration = DateTimeUtils.duration(now, ldt);
+            if (duration > 120) {
+                //获取时间超过当前时间两分钟为异常数据，正常情况下，时间已经小于当前时间，考虑到机器间的时间差，故设定为两分钟，如出现问题，再往小调
+                logger.error("解析到的数据 大于当前时间");
+            } else {
+                Double.parseDouble(rate);
+                entity = new RateEntity(rate, rateDateTime);
+            }
         } catch (Exception e) {
             logger.error("收益率【】和时间【】解析异常", rate, rateDateTime);
         }
@@ -213,5 +223,6 @@ public class Check {
         JSONArray array = obj.getJSONArray("words_result");
         return array;
     }
+
 
 }
