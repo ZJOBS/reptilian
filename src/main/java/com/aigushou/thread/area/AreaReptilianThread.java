@@ -190,7 +190,7 @@ public class AreaReptilianThread implements Runnable {
 
                         JSONArray resultArray = new JSONArray();
                         for (int i = 0; i < rateEntities.size(); i++) {
-                            if (rateEntities.get(i) == null) {
+                            if (rateEntities.get(i) == null || new RateEntity().equals(rateEntities.get(i))) {
                                 //爬虫异常或界面上不足rateEntities.size()个
                                 continue;
                             }
@@ -201,22 +201,34 @@ public class AreaReptilianThread implements Runnable {
                             resultArray.add(object);
                         }
 
-                        //先设置图片，再发送，防止发送失败大致一直解析把百度账号弄挂
+                        //先设置图片，再发送，防止发送失败导致一直解析把百度账号次数消耗完
                         logger.info("设置当前的图像");
                         Constant.bufferedImageMap.put(bufferedImageMapKey, currentImg);
-
-                        //发送
-                        int[] rst = SendUtils.sendArea(bondCode, resultArray);
 
 
                         List<RateEntity> newRates = new ArrayList<RateEntity>();
                         for (RateEntity rateEntity : rateEntities) {
-                            if (!dayRates.contains(rateEntity)) {
+                            if (!dayRates.contains(rateEntity) && rateEntity != null && !new RateEntity().equals(rateEntity)) {
+                                //当日收益率时间对中 不包含 当前收益率时间对，并且 收益率时间对 不是null 并且收益率时间对 不是空对象
                                 newRates.add(rateEntity);
                                 dayRates.add(rateEntity);
                             }
                         }
+                        //需添加从小到大排序
+                        Collections.sort(newRates, new Comparator<RateEntity>() {
+                            @Override
+                            public int compare(RateEntity o1, RateEntity o2) {
+
+                                //排序写法
+                                return 0;
+                            }
+                        });
+
+
                         JSONArray newArray = JSONArray.parseArray(JSON.toJSONString(newRates));
+                        //发送
+                        int[] rst = SendUtils.sendArea(bondCode, newArray);
+
 
                         //记录数据库
                         DataBaseUtils.insertArea(currentDateTimeStr, bondCode, resultArray, newArray, "1", Arrays.toString(rst));

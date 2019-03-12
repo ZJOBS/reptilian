@@ -5,6 +5,7 @@ import com.aigushou.thread.area.AreaReptilianThread;
 import com.aigushou.thread.area.CountDownReptilian;
 import com.aigushou.thread.immediate.LongReptilianThread;
 import com.aigushou.thread.time.ReptilianThread;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,4 +91,23 @@ public class App {
         logger.info("爬虫全部启用");
     }
 
+    /**
+     * 测试代码
+     * @param args
+     */
+    public static void main1(String[] args) {
+
+        for (int i = 0; i < 100; i++) {
+            try {
+                JSONObject object = new JSONObject();
+                object.put("p1" + i, "参数1" + i);
+                Constant.rabbitMQPublish("ZJOBSQUEUE", object);
+            } catch (Exception e) {
+
+            }
+        }
+
+        Constant.rabbitMQConsumer("ZJOBSQUEUE");
+
+    }
 }

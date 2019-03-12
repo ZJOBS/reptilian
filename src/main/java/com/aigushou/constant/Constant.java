@@ -2,17 +2,20 @@ package com.aigushou.constant;
 
 import com.aigushou.App;
 import com.aigushou.utils.AuthServiceUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baidu.aip.ocr.AipOcr;
+import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 常量
@@ -132,6 +135,10 @@ public class Constant {
      */
     private static BlockingQueue<AipOcr> baiDuAipOcrQueue;
 
+
+    private static final Connection rabbitMQConnection;
+
+
     static {
         properties = getProperties();
         send_environment = getSendEnvironment();
@@ -143,6 +150,7 @@ public class Constant {
         baiDuAccountQueue = getBaiDuAccountQueue();
         baiDuAipOcrQueue = getBaiDuAipOcrQueue();
         setDB();
+        rabbitMQConnection = getRabbitMQConnection();
     }
 
     /**
@@ -179,6 +187,27 @@ public class Constant {
 //            properties.load(in);
 //            in.close();
             properties.load(App.class.getResourceAsStream("/baidu.properties"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties;
+    }
+
+    /**
+     * 获取rabbit配置
+     *
+     * @return
+     */
+    private static Properties getRabbitMQProperties() {
+        Properties properties = new Properties();
+        try {
+            logger.info("加载rabbitMQ配置文件，路径为" + "d:/jiezhang/reptilian_jar/region.properties");
+//            FileInputStream in = new FileInputStream("d:/jiezhang/reptilian_jar/rabbit.properties");
+//            properties.load(in);
+//            in.close();
+            properties.load(App.class.getResourceAsStream("/rabbit.properties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -348,4 +377,59 @@ public class Constant {
     }
 
 
+    /**
+     * 获取rabbitMQ连接
+     *
+     * @return
+     */
+    private static Connection getRabbitMQConnection() {
+        Properties properties = getRabbitMQProperties();
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUsername(properties.getProperty("rabbit_user_name"));
+        factory.setPassword(properties.getProperty("rabbit_password"));
+        factory.setHost(properties.getProperty("rabbit_host"));
+        factory.setPort(Integer.parseInt(properties.getProperty("rabbit_port")));
+        try {
+            return factory.newConnection();
+        } catch (Exception e) {
+            throw new RuntimeException("创建rabbit client 连接失败" + e);
+        }
+    }
+
+
+    public static void rabbitMQPublish(String queueName, JSONObject message) throws IOException, TimeoutException {
+        Channel channel = null;
+        try {
+            channel = rabbitMQConnection.createChannel();
+            channel.queueDeclare(queueName, true, false, false, null);
+            channel.txSelect(); // 声明事务 // 发送消息
+            channel.basicPublish("", queueName, MessageProperties.PERSISTENT_TEXT_PLAIN, message.toString().getBytes("UTF-8"));
+            channel.txCommit(); // 提交事务
+        } catch (IOException e) {
+            channel.txRollback();
+        } finally {
+            channel.close();
+        }
+
+    }
+
+
+    public static void rabbitMQConsumer(String queueName) {
+
+        try {
+            boolean autoAck = false;
+            Channel channel = rabbitMQConnection.createChannel();
+            channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                    System.out.println("消息序号:" + envelope.getDeliveryTag());
+                    System.out.println("交换器:" + envelope.getExchange());
+                    System.out.println("路由键:" + envelope.getRoutingKey());
+                    System.out.println("消息内容:" + new String(body, StandardCharsets.UTF_8));
+                }
+            });
+        } catch (IOException e) {
+
+        }
+    }
 }
