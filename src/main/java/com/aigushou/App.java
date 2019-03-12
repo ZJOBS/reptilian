@@ -91,23 +91,21 @@ public class App {
         logger.info("爬虫全部启用");
     }
 
-    /**
-     * 测试代码
-     * @param args
-     */
-    public static void main1(String[] args) {
-
-        for (int i = 0; i < 100; i++) {
-            try {
-                JSONObject object = new JSONObject();
-                object.put("p1" + i, "参数1" + i);
-                Constant.rabbitMQPublish("ZJOBSQUEUE", object);
-            } catch (Exception e) {
-
-            }
-        }
-
-        Constant.rabbitMQConsumer("ZJOBSQUEUE");
-
-    }
+//    /**
+//     * 测试代码
+//     * @param args
+//     */
+//    public static void main(String[] args) {
+//        for (int i = 0; i < 100; i++) {
+//            try {
+//                JSONObject object = new JSONObject();
+//                object.put("p" + i, "参数" + i);
+//                Constant.rabbitMQPublish("ZJOBSQUEUE", object);
+//            } catch (Exception e) {
+//
+//            }
+//        }
+//        Constant.rabbitMQConsumer("ZJOBSQUEUE");
+//
+//    }
 }
